@@ -1,0 +1,22 @@
+# 基础依赖
+streamlit>=1.32.0
+langchain>=0.1.0
+langchain-community>=0.0.13
+faiss-cpu>=1.7.4  # 替换掉faiss-gpu, 由于py12不支持，故采用torch加速的方法
+torch>=2.1.0
+sentence-transformers>=2.2.2
+markdown>=3.5.1
+python-dotenv>=1.0.0
+requests>=2.31.0
+huggingface-hub>=0.20.2
+openai>=1.10.0
+pydantic>=2.5.0
+# Python 3.12 兼容性支持
+typing-extensions>=4.8.0
+# GPU加速支持
+# torch>=2.5.1 # 确保使用支持CUDA的PyTorch版本
+# 预开发功能依赖
+networkx>=3.2.1  # 用于知识图谱构建
+# 对话历史优化
+chromadb>=0.4.18  # 用于Consciousness Flow和长上下文记忆
+transformers>=4.36.0  # 用于小模型上下文总结
