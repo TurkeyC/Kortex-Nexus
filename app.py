@@ -62,6 +62,8 @@ def main():
         config.ENABLE_GPU = False
         config.EMBEDDING_DEVICE = "cpu"
 
+
+
     # 检查模型可用性并提供友好提示
     is_local_model_available = False
     is_api_model_available = False
