@@ -18,6 +18,11 @@ def main():
     # 初始化知识库管理器
     kb_manager = KnowledgeBaseManager(config.KNOWLEDGE_BASE_DIR)
     
+    # 在使用知识库之前先初始化它
+    if "knowledge_base" not in st.session_state:
+        from modules.retrieval import KnowledgeBase
+        st.session_state.knowledge_base = KnowledgeBase()
+    
     # 侧边栏
     with st.sidebar:
         st.header("操作")

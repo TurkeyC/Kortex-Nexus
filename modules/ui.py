@@ -167,32 +167,30 @@ def render_sidebar(
         )
 
         # 知识库管理
-        st.header("知识库")
+        with st.expander("知识库管理", expanded=False):
+            # 上传并处理文件
+            uploaded_file = st.file_uploader(
+                "上传文件到知识库",
+                type=["md", "txt", "pdf"],
+                help="支持Markdown、txt和PDF格式"
+            )
 
-        # 上传文件按钮
-        uploaded_file = st.file_uploader(
-            "上传Markdown文件",
-            type=["md"],
-            help="上传Markdown格式的知识库文件"
-        )
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("刷新知识库", use_container_width=True):
+                    with st.spinner("刷新中..."):
+                        st.session_state.knowledge_base.load_knowledge_base()
+                    st.success("知识库已更新")
 
-        if uploaded_file:
-            save_path = str(st.session_state.knowledge_base.knowledge_dir / uploaded_file.name)
-            with open(save_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-            st.success(f"文件 {uploaded_file.name} 已上传")
-
-            # 加载知识库
-            if st.button("处理上传的文件"):
-                with st.spinner("正在处理知识库..."):
-                    st.session_state.knowledge_base.load_knowledge_base()
-                st.success("知识库已更新")
-
-        # 知识库刷新按钮
-        if st.button("重新加载知识库"):
-            with st.spinner("正在重新加载知识库..."):
-                st.session_state.knowledge_base.load_knowledge_base()
-            st.success("知识库已重新加载")
+            with col2:
+                if uploaded_file:
+                    if st.button("处理上传文件", use_container_width=True):
+                        save_path = str(st.session_state.knowledge_base.knowledge_dir / uploaded_file.name)
+                        with open(save_path, "wb") as f:
+                            f.write(uploaded_file.getbuffer())
+                        with st.spinner("处理中..."):
+                            st.session_state.knowledge_base.load_knowledge_base()
+                        st.success(f"已上传并处理文件：{uploaded_file.name}")
 
         # 预开发功能选择（如果可用）
         if available_features and on_feature_mode_change:

@@ -25,5 +25,670 @@
     ],
     "source": "test.md",
     "path": "E:\\User_Stuff\\Documents\\Code_Typing\\Python_3.12_Code_Workspace\\Cial_Project\\Kortex-Nexus\\data\\knowledge_base\\test.md"
+  },
+  "大学知识\\大学物理\\作业\\大学物理练习册.md": {
+    "source": "大学物理练习册.md",
+    "path": "E:\\User_Stuff\\Documents\\Code_Typing\\Python_3.12_Code_Workspace\\Cial_Project\\Kortex-Nexus\\data\\knowledge_base\\大学知识\\大学物理\\作业\\大学物理练习册.md"
+  },
+  "大学知识\\大学物理\\对策卡\\20250317对策卡.md": {
+    "title": "3-T1",
+    "headers": [
+      {
+        "level": 1,
+        "text": "3-T1"
+      },
+      {
+        "level": 3,
+        "text": "1. 加速阶段"
+      },
+      {
+        "level": 3,
+        "text": "2. 减速阶段"
+      },
+      {
+        "level": 3,
+        "text": "3. 匀速阶段"
+      },
+      {
+        "level": 3,
+        "text": "4. 总转动时间"
+      },
+      {
+        "level": 3,
+        "text": "最终答案"
+      },
+      {
+        "level": 1,
+        "text": "3-T2"
+      },
+      {
+        "level": 3,
+        "text": "**(1) 角速度和角位置关于时间的函数**"
+      },
+      {
+        "level": 4,
+        "text": "**角速度 $\\omega(t)$ 的计算**"
+      },
+      {
+        "level": 4,
+        "text": "**角位置 $\\theta(t)$ 的计算**"
+      },
+      {
+        "level": 3,
+        "text": "**(2) 切向加速度和法向加速度**"
+      },
+      {
+        "level": 4,
+        "text": "**切向加速度 $a_t$**"
+      },
+      {
+        "level": 4,
+        "text": "**法向加速度 $a_n$**"
+      },
+      {
+        "level": 3,
+        "text": "**总结**"
+      },
+      {
+        "level": 1,
+        "text": "3-T3"
+      },
+      {
+        "level": 3,
+        "text": "题目分析"
+      },
+      {
+        "level": 3,
+        "text": "解题步骤"
+      },
+      {
+        "level": 3,
+        "text": "最终答案"
+      },
+      {
+        "level": 1,
+        "text": "3-T4"
+      },
+      {
+        "level": 3,
+        "text": "**已知条件：**"
+      },
+      {
+        "level": 3,
+        "text": "**问题分析：**"
+      },
+      {
+        "level": 3,
+        "text": "**解题步骤：**"
+      },
+      {
+        "level": 4,
+        "text": "**(1) 飞轮主轴与轴承之间的摩擦力矩**"
+      },
+      {
+        "level": 4,
+        "text": "**(2) 飞轮的转动惯量**"
+      },
+      {
+        "level": 4,
+        "text": "**(3) 绳上张力**"
+      },
+      {
+        "level": 3,
+        "text": "**最终答案：**"
+      },
+      {
+        "level": 1,
+        "text": "3-T5"
+      },
+      {
+        "level": 3,
+        "text": "题目分析"
+      },
+      {
+        "level": 3,
+        "text": "解题步骤"
+      },
+      {
+        "level": 3,
+        "text": "最终答案"
+      }
+    ],
+    "source": "20250317对策卡.md",
+    "path": "E:\\User_Stuff\\Documents\\Code_Typing\\Python_3.12_Code_Workspace\\Cial_Project\\Kortex-Nexus\\data\\knowledge_base\\大学知识\\大学物理\\对策卡\\20250317对策卡.md"
+  },
+  "大学知识\\大学物理\\笔记卡片\\3.刚体.md": {
+    "title": "刚体的定轴转动",
+    "headers": [
+      {
+        "level": 1,
+        "text": "刚体的定轴转动"
+      },
+      {
+        "level": 2,
+        "text": "一、刚体的定轴转动"
+      },
+      {
+        "level": 3,
+        "text": "1. 刚体的定义"
+      },
+      {
+        "level": 3,
+        "text": "2. 描述刚体的定轴转动的物理量"
+      },
+      {
+        "level": 2,
+        "text": "二、刚体的定轴转动定律"
+      },
+      {
+        "level": 3,
+        "text": "1. 力矩"
+      },
+      {
+        "level": 3,
+        "text": "2. 刚体定轴转动定律"
+      },
+      {
+        "level": 3,
+        "text": "3. 刚体定轴转动定律的应用"
+      },
+      {
+        "level": 2,
+        "text": "三、转动惯量的计算"
+      },
+      {
+        "level": 3,
+        "text": "1. 转动惯量的计算方法"
+      },
+      {
+        "level": 3,
+        "text": "2. 平行轴定理"
+      },
+      {
+        "level": 3,
+        "text": "3. 垂直轴定理（正交轴定理）"
+      },
+      {
+        "level": 3,
+        "text": "4. 常见刚体的转动惯量"
+      },
+      {
+        "level": 2,
+        "text": "四、刚体定轴转动定律的应用示例"
+      },
+      {
+        "level": 3,
+        "text": "例1：两匀质直细杆的角加速度比较"
+      },
+      {
+        "level": 3,
+        "text": "例2：圆轮上挂细绳，细绳两端各挂两物"
+      },
+      {
+        "level": 3,
+        "text": "例3：薄圆盘在粗糙水平桌面上的转动"
+      },
+      {
+        "level": 2,
+        "text": "五、答题范式"
+      },
+      {
+        "level": 3,
+        "text": "1. 分析受力情况"
+      },
+      {
+        "level": 3,
+        "text": "2. 应用刚体定轴转动定律"
+      },
+      {
+        "level": 3,
+        "text": "3. 联立方程求解"
+      },
+      {
+        "level": 3,
+        "text": "4. 注意单位和量纲"
+      },
+      {
+        "level": 3,
+        "text": "5. 检查结果合理性"
+      }
+    ],
+    "source": "3.刚体.md",
+    "path": "E:\\User_Stuff\\Documents\\Code_Typing\\Python_3.12_Code_Workspace\\Cial_Project\\Kortex-Nexus\\data\\knowledge_base\\大学知识\\大学物理\\笔记卡片\\3.刚体.md"
+  },
+  "大学知识\\微积分\\微积分作业.md": {
+    "title": "20250219",
+    "headers": [
+      {
+        "level": 1,
+        "text": "20250219"
+      },
+      {
+        "level": 1,
+        "text": "20250222"
+      },
+      {
+        "level": 1,
+        "text": "20250226"
+      },
+      {
+        "level": 1,
+        "text": "20250301"
+      },
+      {
+        "level": 1,
+        "text": "20250303"
+      },
+      {
+        "level": 1,
+        "text": "20250305"
+      },
+      {
+        "level": 1,
+        "text": "20250307"
+      },
+      {
+        "level": 1,
+        "text": "20250310"
+      },
+      {
+        "level": 1,
+        "text": "20250312"
+      },
+      {
+        "level": 1,
+        "text": "20250314"
+      },
+      {
+        "level": 1,
+        "text": "20250317"
+      }
+    ],
+    "source": "微积分作业.md",
+    "path": "E:\\User_Stuff\\Documents\\Code_Typing\\Python_3.12_Code_Workspace\\Cial_Project\\Kortex-Nexus\\data\\knowledge_base\\大学知识\\微积分\\微积分作业.md"
+  },
+  "大学知识\\微积分\\对策卡\\20250317对策卡.md": {
+    "title": "T1",
+    "headers": [
+      {
+        "level": 1,
+        "text": "T1"
+      },
+      {
+        "level": 3,
+        "text": "1.$\\frac{1}{(1+x)^2}$的 Maclaurin 级数展开"
+      },
+      {
+        "level": 3,
+        "text": "2.$\\frac{x^2}{x^2-3x+1}$的 Maclaurin 级数展开"
+      },
+      {
+        "level": 3,
+        "text": "3.$\\frac{x}{(1-x)(1-x^3)}$的 Maclaurin 级数展开"
+      },
+      {
+        "level": 1,
+        "text": "T2"
+      },
+      {
+        "level": 3,
+        "text": "(1) 求$\\sum_{n=1}^{\\infty} n(n+1)x^n$的和"
+      },
+      {
+        "level": 3,
+        "text": "(2) 求$\\sum_{n=0}^{\\infty} \\frac{x^{4n-1}}{4n+1}$的和"
+      },
+      {
+        "level": 3,
+        "text": "(3) 求$\\sum_{n=1}^{\\infty} n^2x^{n-1}$的和"
+      },
+      {
+        "level": 3,
+        "text": "总结"
+      },
+      {
+        "level": 1,
+        "text": "T3"
+      },
+      {
+        "level": 3,
+        "text": "1. 化简函数"
+      },
+      {
+        "level": 3,
+        "text": "2. 对$2+2x+x^2$进行配方"
+      },
+      {
+        "level": 3,
+        "text": "3. 引入变量替换"
+      },
+      {
+        "level": 3,
+        "text": "4. 对$\\ln(t^2 + 4t + 5)$进行泰勒展开"
+      },
+      {
+        "level": 4,
+        "text": "4.1 计算函数值"
+      },
+      {
+        "level": 4,
+        "text": "4.2 计算一阶导数"
+      },
+      {
+        "level": 4,
+        "text": "4.3 计算二阶导数"
+      },
+      {
+        "level": 4,
+        "text": "4.4 计算更高阶导数"
+      },
+      {
+        "level": 3,
+        "text": "5. 写出泰勒级数"
+      },
+      {
+        "level": 3,
+        "text": "6. 代回原变量"
+      },
+      {
+        "level": 3,
+        "text": "7. 最终结果"
+      },
+      {
+        "level": 3,
+        "text": "8. 收敛域"
+      },
+      {
+        "level": 1,
+        "text": "T4"
+      },
+      {
+        "level": 3,
+        "text": "1. 求 $\\arctan x$ 的 Maclaurin 级数展开"
+      },
+      {
+        "level": 3,
+        "text": "2. 计算 $\\frac{\\pi}{4} = 1 - \\frac{1}{3} + \\frac{1}{5} - \\frac{1}{7} + \\cdots$"
+      },
+      {
+        "level": 3,
+        "text": "总结"
+      },
+      {
+        "level": 1,
+        "text": "T5"
+      },
+      {
+        "level": 3,
+        "text": "步骤 1：已知函数的幂级数展开"
+      },
+      {
+        "level": 3,
+        "text": "步骤 2：对已知级数求导"
+      },
+      {
+        "level": 3,
+        "text": "步骤 3：整理得到目标函数的级数展开"
+      },
+      {
+        "level": 3,
+        "text": "最终结果"
+      },
+      {
+        "level": 1,
+        "text": "T6"
+      },
+      {
+        "level": 3,
+        "text": "已知："
+      },
+      {
+        "level": 3,
+        "text": "步骤："
+      },
+      {
+        "level": 3,
+        "text": "最终结果："
+      }
+    ],
+    "source": "20250317对策卡.md",
+    "path": "E:\\User_Stuff\\Documents\\Code_Typing\\Python_3.12_Code_Workspace\\Cial_Project\\Kortex-Nexus\\data\\knowledge_base\\大学知识\\微积分\\对策卡\\20250317对策卡.md"
+  },
+  "大学知识\\普通化学\\作业\\普通化学作业.md": {
+    "title": "第一周作业",
+    "headers": [
+      {
+        "level": 1,
+        "text": "第一周作业"
+      },
+      {
+        "level": 1,
+        "text": "第二周作业"
+      },
+      {
+        "level": 1,
+        "text": "第三周作业"
+      },
+      {
+        "level": 1,
+        "text": "第四周作业"
+      },
+      {
+        "level": 3,
+        "text": "思考题"
+      },
+      {
+        "level": 3,
+        "text": "习题"
+      }
+    ],
+    "source": "普通化学作业.md",
+    "path": "E:\\User_Stuff\\Documents\\Code_Typing\\Python_3.12_Code_Workspace\\Cial_Project\\Kortex-Nexus\\data\\knowledge_base\\大学知识\\普通化学\\作业\\普通化学作业.md"
+  },
+  "大学知识\\普通化学\\笔记卡片\\第1章 气体与液体.md": {
+    "title": "第1章 气体与液体",
+    "headers": [
+      {
+        "level": 1,
+        "text": "第1章 气体与液体"
+      },
+      {
+        "level": 2,
+        "text": "1.0 引言"
+      },
+      {
+        "level": 2,
+        "text": "1.1 气体"
+      },
+      {
+        "level": 3,
+        "text": "1.1.1 理想气体定律"
+      },
+      {
+        "level": 4,
+        "text": "1.1.1.1 理想气体"
+      },
+      {
+        "level": 4,
+        "text": "1.1.1.2 理想气体状态方程"
+      },
+      {
+        "level": 4,
+        "text": "1.1.1.3 理想气体定律的实验发现"
+      },
+      {
+        "level": 3,
+        "text": "1.1.2 理想气体状态方程的应用"
+      },
+      {
+        "level": 3,
+        "text": "1.1.3 混合气体分压定律"
+      },
+      {
+        "level": 4,
+        "text": "1.1.3.1 分压定律中的基本概念"
+      },
+      {
+        "level": 4,
+        "text": "1.1.3.2 混合气体分压定律"
+      },
+      {
+        "level": 4,
+        "text": "1.1.3.3 混合气体分体积定律"
+      },
+      {
+        "level": 4,
+        "text": "1.1.3.4 混合气体分压定律的实验验证：[^1]"
+      },
+      {
+        "level": 4,
+        "text": "1.1.3.4 混合气体分压定律的实际应用："
+      },
+      {
+        "level": 3,
+        "text": "1.1.4 实际气体和 Van der Waals 方程"
+      },
+      {
+        "level": 2,
+        "text": "1.1.4 实际气体和 Van der Waals 方程"
+      },
+      {
+        "level": 2,
+        "text": "1.2 液体"
+      },
+      {
+        "level": 3,
+        "text": "1.2.1 气体的液化"
+      },
+      {
+        "level": 3,
+        "text": "1.2.2 液体的气化：蒸发、沸腾"
+      },
+      {
+        "level": 2,
+        "text": "1.3 液固转化与平衡"
+      },
+      {
+        "level": 2,
+        "text": "1.4 水的相图"
+      },
+      {
+        "level": 2,
+        "text": "本章小结"
+      }
+    ],
+    "source": "第1章 气体与液体.md",
+    "path": "E:\\User_Stuff\\Documents\\Code_Typing\\Python_3.12_Code_Workspace\\Cial_Project\\Kortex-Nexus\\data\\knowledge_base\\大学知识\\普通化学\\笔记卡片\\第1章 气体与液体.md"
+  },
+  "大学知识\\普通化学\\笔记卡片\\第2章 溶液.md": {
+    "title": "第2章 溶液",
+    "headers": [
+      {
+        "level": 1,
+        "text": "第2章 溶液"
+      },
+      {
+        "level": 2,
+        "text": "2.0 引言：溶液及其分类"
+      },
+      {
+        "level": 2,
+        "text": "2.1 溶液的浓度"
+      },
+      {
+        "level": 3,
+        "text": "2.1.1 质量分数"
+      },
+      {
+        "level": 3,
+        "text": "2.1.2 摩尔分数或物质的量分数"
+      },
+      {
+        "level": 3,
+        "text": "2.1.3 质量摩尔浓度"
+      },
+      {
+        "level": 3,
+        "text": "2.1.4 体积分数"
+      },
+      {
+        "level": 3,
+        "text": "2.1.5 物质的量浓度"
+      },
+      {
+        "level": 3,
+        "text": "2.1.6 ppm和ppb"
+      },
+      {
+        "level": 2,
+        "text": "2.2 溶解度及其经验规律"
+      },
+      {
+        "level": 3,
+        "text": "2.2.1 饱和溶液和溶解度的定义"
+      },
+      {
+        "level": 3,
+        "text": "2.2.2 溶解度的相似相溶规律"
+      },
+      {
+        "level": 3,
+        "text": "2.2.3 过饱和现象"
+      },
+      {
+        "level": 2,
+        "text": "2.3 非电解质稀溶液的依数性"
+      },
+      {
+        "level": 3,
+        "text": "2.3.1 蒸气压下降"
+      },
+      {
+        "level": 3,
+        "text": "2.3.2 沸点升高"
+      },
+      {
+        "level": 3,
+        "text": "2.3.3 凝固点降低"
+      },
+      {
+        "level": 3,
+        "text": "2.3.4 渗透压"
+      },
+      {
+        "level": 2,
+        "text": "2.4 电解质溶液"
+      },
+      {
+        "level": 3,
+        "text": "2.4.1 Arrhenius的电离学说"
+      },
+      {
+        "level": 3,
+        "text": "2.4.2 强电解质的活度与活度系数"
+      },
+      {
+        "level": 2,
+        "text": "2.5 胶体溶液*"
+      },
+      {
+        "level": 3,
+        "text": "2.5.1 溶胶"
+      },
+      {
+        "level": 3,
+        "text": "2.5.2 大分子溶液"
+      },
+      {
+        "level": 3,
+        "text": "2.5.3 表面活性剂与缔合胶体"
+      },
+      {
+        "level": 3,
+        "text": "2.5.4 胶体溶液的特性及其应用"
+      }
+    ],
+    "source": "第2章 溶液.md",
+    "path": "E:\\User_Stuff\\Documents\\Code_Typing\\Python_3.12_Code_Workspace\\Cial_Project\\Kortex-Nexus\\data\\knowledge_base\\大学知识\\普通化学\\笔记卡片\\第2章 溶液.md"
   }
 }

@@ -9,10 +9,13 @@ from modules.retrieval import KnowledgeBase
 import config
 
 # 导入二阶段开发模块
-from modules.retrieval_engines import KeywordRetriever, HybridRetriever
+from modules.retrieval_engines import KeywordRetriever, HybridRetriever, TreeStructureRetriever
 from modules.rag import RAGPipeline
 from modules.kb_manager import KnowledgeBaseManager
 from modules.conversation_manager import ConversationTree, ContextManager
+# 修正导入, 使用正确的ui_components
+from modules.ui_components import render_js_tree_selector, render_search_results
+
 
 # 预开发功能导入（预留）
 from modules.advanced.swarms import Swarms
@@ -64,33 +67,68 @@ def main():
     is_api_model_available = False
 
     try:
-        # 检查Ollama可用性
+        # 检查本地模型服务可用性
         import requests
-        response = requests.get("http://localhost:11434/api/tags", timeout=2)
-        if response.status_code == 200:
-            is_local_model_available = True
-            st.sidebar.success("✅ Ollama服务已连接")
-    except:
-        st.sidebar.warning("⚠️ 未检测到Ollama服务")
-        # 显示安装指南链接
-        st.sidebar.markdown("""
-        [安装Ollama](https://ollama.com/download)
-        ```bash
-        # 安装后运行:
-        ollama pull llama3
-        ```
-        """)
+        ollama_available = False
+        lmstudio_available = False
+
+        # 尝试连接Ollama
+        try:
+            response = requests.get("http://localhost:11434/api/tags", timeout=2)
+            if response.status_code == 200:
+                ollama_available = True
+                st.sidebar.success("✅ Ollama服务已连接")
+        except requests.RequestException:
+            pass
+        # # 显示安装指南链接
+        # st.sidebar.markdown("""
+        # [安装Ollama](https://ollama.com/download)
+        # ```bash
+        # # 安装后运行:
+        # ollama pull llama3
+        # ```
+        # """)
+
+        # 尝试连接LM Studio (通常在1234或8000端口)
+        try:
+            response = requests.get("http://localhost:1234/v1/models", timeout=2)
+            if response.status_code == 200:
+                lmstudio_available = True
+                st.sidebar.success("✅ LM Studio服务已连接")
+        except requests.RequestException:
+            pass
+
+        is_local_model_available = ollama_available or lmstudio_available
+
+        if not is_local_model_available:
+            st.sidebar.warning("⚠️ 未检测到Ollama或LM Studio服务")
+    except Exception as e:
+        st.sidebar.warning(f"⚠️ 检测本地模型服务时出错: {str(e)}")
+
 
     # 检查API密钥v1
-    if os.environ.get("MOONSHOT_API_KEY") or \
-            hasattr(st.session_state, 'moonshot_api_key') and st.session_state.moonshot_api_key:
+    # 检查各种可能的API密钥
+    api_keys = {
+        "OpenAI": os.environ.get("OPENAI_API_KEY") or
+                  (hasattr(st.session_state, 'openai_api_key') and st.session_state.openai_api_key),
+        "Moonshot": os.environ.get("MOONSHOT_API_KEY") or
+                    (hasattr(st.session_state, 'moonshot_api_key') and st.session_state.moonshot_api_key),
+        "Azure": os.environ.get("AZURE_OPENAI_API_KEY") or
+                 (hasattr(st.session_state, 'azure_api_key') and st.session_state.azure_api_key),
+        "Anthropic": os.environ.get("ANTHROPIC_API_KEY") or
+                     (hasattr(st.session_state, 'anthropic_api_key') and st.session_state.anthropic_api_key)
+    }
+
+    # 检查是否有任何API密钥可用
+    available_apis = [name for name, key in api_keys.items() if key]
+    if available_apis:
         is_api_model_available = True
-        st.sidebar.success("✅ 已配置Moonshot API密钥")
+        st.sidebar.success(f"✅ 已配置API密钥: {', '.join(available_apis)}")
     else:
-        st.sidebar.info("ℹ️ 未配置Moonshot API密钥，需使用本地模型")
+        st.sidebar.info("ℹ️ 暂未检测到配置任何可用API密钥，需使用本地模型")
 
     if not is_local_model_available and not is_api_model_available:
-        st.warning("⚠️ 警告：未检测到可用的模型服务。请在侧边栏配置Moonshot API密钥或启动Ollama服务。")
+        st.warning("⚠️ 警告：未检测到可用的模型服务。请在侧边栏配置API密钥或启动本地模型服务。")
 
     # 重要：先初始化模型，再初始化依赖模型的组件
     # 如果模型尚未初始化，则初始化
@@ -165,11 +203,19 @@ def main():
             # 创建关键词检索器
             st.session_state.keyword_retriever = KeywordRetriever()
             st.session_state.keyword_retriever.add_documents(documents)
+            
+            # 创建树状结构检索器
+            st.session_state.tree_retriever = TreeStructureRetriever(st.session_state.knowledge_base)
+            
+            # 初始化选中的树节点
+            if "selected_tree_nodes" not in st.session_state:
+                st.session_state.selected_tree_nodes = []
 
             # 创建混合检索器
             st.session_state.hybrid_retriever = HybridRetriever(
                 vector_retriever=st.session_state.knowledge_base,
                 keyword_retriever=st.session_state.keyword_retriever,
+                tree_retriever=st.session_state.tree_retriever,
                 weights=config.RETRIEVAL_CONFIG["weights"]
             )
 
@@ -209,6 +255,23 @@ def main():
     st.session_state.model.set_system_prompt(sidebar_config["system_prompt"])
     st.session_state.model.set_temperature(sidebar_config["temperature"])
 
+    # 渲染树状结构选择器 - 使用修改后的组件
+    if "tree_retriever" in st.session_state:
+        with st.expander("📚 知识库目录", expanded=False):
+            # 获取树结构
+            tree = st.session_state.tree_retriever.get_tree()
+
+            # 定义节点选择回调
+            def on_node_select(selected_nodes):
+                st.session_state.selected_tree_nodes = selected_nodes
+
+            # 使用扁平化组件渲染
+            render_js_tree_selector(
+                tree,
+                st.session_state.selected_tree_nodes,
+                on_node_select
+            )
+
     # 定义消息发送回调v1
     def on_send(user_input):
         with st.spinner("思考中..."):
@@ -230,7 +293,14 @@ def main():
             # 使用RAG管道处理查询
             if hasattr(st.session_state, "rag_pipeline"):
                 try:
-                    rag_result = st.session_state.rag_pipeline.process(user_input, compressed_history)
+                    # 将选择的树节点传递给检索器
+                    selected_nodes = st.session_state.selected_tree_nodes if hasattr(st.session_state, "selected_tree_nodes") else []
+                    
+                    rag_result = st.session_state.rag_pipeline.process(
+                        user_input, 
+                        compressed_history,
+                        selected_nodes=selected_nodes  # 传递选中的节点
+                    )
                     response = rag_result["response"]
 
                     # 显示检索到的上下文（调试用）
@@ -252,41 +322,6 @@ def main():
 
             # 添加助手回复到对话树
             st.session_state.conversation_tree.add_message({"role": "assistant", "content": response})
-
-            # 尝试检索相关信息
-            retrieval_results = []
-            try:
-                retrieval_results = st.session_state.knowledge_base.search(user_input, top_k=3)
-                if retrieval_results and "content" in retrieval_results[0]:
-                    context_info = "\n\n知识库参考:\n" + "\n".join(
-                        [f"- {res['content'][:200]}..." for res in retrieval_results]
-                    )
-                    user_input_with_context = user_input + context_info
-                else:
-                    user_input_with_context = user_input
-            except Exception as e:
-                st.error(f"检索出错: {str(e)}")
-                user_input_with_context = user_input
-
-            # 根据当前活动的功能模式处理查询
-            if st.session_state.active_feature == "standard":
-                # 标准模式 - 直接使用模型回复
-                response = st.session_state.model.generate_response(user_input_with_context, chat_history)
-            elif st.session_state.active_feature == "swarms":
-                # Swarms模式 (预留)
-                response = st.session_state.advanced_features["swarms"].process_query(user_input, chat_history)
-            elif st.session_state.active_feature == "storm":
-                # Storm模式 (预留)
-                response = st.session_state.advanced_features["storm"].process_query(user_input, chat_history)
-            elif st.session_state.active_feature == "consciousness":
-                # Consciousness Flow模式 (预留)
-                response = st.session_state.advanced_features["consciousness"].process_query(user_input, chat_history)
-            elif st.session_state.active_feature == "hook":
-                # Hook模式 (预留)
-                response = st.session_state.advanced_features["hook"].process_query(user_input, chat_history)
-            else:
-                # 默认模式
-                response = st.session_state.model.generate_response(user_input_with_context, chat_history)
 
             # 显示回复
             display_assistant_response(response)

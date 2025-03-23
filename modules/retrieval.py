@@ -335,13 +335,93 @@ class KnowledgeBase:
         # 后续实现基于知识图谱的检索
         return []
 
-    # 预留位置: 树状结构知识体系检索
-    def tree_structure_search(self, query: str, selected_nodes: List[str] = None) -> List[Dict[str, Any]]:
-        """树状结构知识体系检索 (预开发功能)"""
-        # 后续实现基于文件目录结构的检索
-        return []
+    def tree_structure_search(self, query: str, selected_nodes: List[str] = None, top_k: int = 3) -> List[Dict[str, Any]]:
+        """树状结构知识体系检索"""
+        # 实现树状检索
+        if not self.vector_store:
+            if not self.load_existing_vectorstore():
+                return [{"content": "知识库尚未初始化，请先上传文档。", "metadata": {}}]
+        
+        try:
+            # 获取文档目录结构
+            doc_tree = self._build_document_tree()
+            
+            # 如果指定了特定节点，则只在这些节点下检索
+            if selected_nodes:
+                filtered_results = []
+                # 先进行基本向量检索
+                base_results = self._safe_search(query, top_k=top_k*2)  # 先检索更多结果
+                
+                # 过滤结果，只保留在选定目录下的文档
+                for result in base_results:
+                    source = result.get("metadata", {}).get("source", "")
+                    # 检查文档是否在所选节点路径下
+                    if any(source.startswith(node) for node in selected_nodes):
+                        filtered_results.append(result)
+                        if len(filtered_results) >= top_k:
+                            break
+                            
+                return filtered_results[:top_k]
+            
+            # 如果没有指定节点，使用基本向量检索
+            return self._safe_search(query, top_k=top_k)
+            
+        except Exception as e:
+            print(f"树状结构检索出错: {str(e)}")
+            return [{"content": f"树状结构检索出错: {str(e)}", "metadata": {}}]
+            
+    def _build_document_tree(self) -> Dict[str, Any]:
+        """构建文档树状结构"""
+        doc_tree = {"name": "根目录", "path": "", "children": []}
+        
+        # 获取知识库下所有Markdown文件
+        markdown_files = glob.glob(os.path.join(self.knowledge_dir, "**/*.md"), recursive=True)
+        
+        # 构建目录树
+        for file_path in markdown_files:
+            # 计算相对路径
+            rel_path = os.path.relpath(file_path, self.knowledge_dir)
+            # 分割路径
+            path_parts = rel_path.split(os.sep)
+            
+            # 从根目录开始遍历
+            current_node = doc_tree
+            current_path = ""
+            
+            # 遍历路径的每一部分（除了文件名）
+            for i, part in enumerate(path_parts[:-1]):
+                # 构建当前路径
+                if current_path:
+                    current_path = os.path.join(current_path, part)
+                else:
+                    current_path = part
+                    
+                # 查找子节点
+                found = False
+                for child in current_node["children"]:
+                    if child["name"] == part:
+                        current_node = child
+                        found = True
+                        break
+                        
+                # 如果找不到，创建新节点
+                if not found:
+                    new_node = {"name": part, "path": current_path, "children": []}
+                    current_node["children"].append(new_node)
+                    current_node = new_node
+            
+            # 添加文件节点
+            file_name = path_parts[-1]
+            file_path_rel = os.path.join(current_path, file_name) if current_path else file_name
+            file_node = {"name": file_name, "path": file_path_rel, "type": "file"}
+            current_node["children"].append(file_node)
+        
+        return doc_tree
 
-    # 预留位置: 混合检索
+    def get_document_tree(self) -> Dict[str, Any]:
+        """获取文档树状结构"""
+        return self._build_document_tree()
+    
     def hybrid_search(self, query: str, weights: Dict[str, float] = None) -> List[Dict[str, Any]]:
         """混合检索 (预开发功能)"""
         # 后续实现多种检索方式的混合
@@ -350,5 +430,6 @@ class KnowledgeBase:
 
         # 目前仅返回向量检索结果
         return self.search(query, top_k=config.RETRIEVAL_CONFIG["vector_search_top_k"])
+
 
 

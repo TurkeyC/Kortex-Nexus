@@ -87,13 +87,13 @@ class RAGPipeline:
         self.query_processor = QueryProcessor(llm)
         self.context_builder = ContextBuilder()
         
-    def process(self, query: str, chat_history: List[Dict[str, str]] = None) -> Dict[str, Any]:
+    def process(self, query: str, chat_history: List[Dict[str, str]] = None, selected_nodes: List[str] = None) -> Dict[str, Any]:
         """处理查询并返回结果"""
         # 查询重写
         rewritten_query = self.query_processor.rewrite_query(query)
         
-        # 混合检索
-        results = self.retriever.retrieve(rewritten_query, top_k=5)
+        # 混合检索，包含树状结构过滤
+        results = self.retriever.retrieve(rewritten_query, top_k=5, selected_nodes=selected_nodes)
         
         # 构建上下文
         context = self.context_builder.format_retrieved_context(results)
