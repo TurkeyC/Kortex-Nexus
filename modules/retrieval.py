@@ -4,8 +4,22 @@ import torch
 from typing import List, Dict, Any, Optional, Tuple
 import markdown
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS  # 修改这一行，使用langchain_community
+
+# 更新导入路径，避免弃用警告
+try:
+    # 尝试导入新的包路径
+    from langchain_huggingface import HuggingFaceEmbeddings
+except ImportError:
+    # 如果新包未安装，则使用旧路径但显示警告
+    import warnings
+    warnings.warn(
+        "请安装langchain-huggingface包以获取更新的HuggingFaceEmbeddings: "
+        "pip install langchain-huggingface",
+        DeprecationWarning
+    )
+    from langchain_community.embeddings import HuggingFaceEmbeddings
+
+from langchain_community.vectorstores import FAISS
 import config
 
 
@@ -20,10 +34,24 @@ class KnowledgeBase:
         device = "cuda" if torch.cuda.is_available() and config.ENABLE_GPU else "cpu"
         print(f"使用设备: {device} 进行向量嵌入")
 
-        self.embeddings = HuggingFaceEmbeddings(
-            model_name=embedding_model_name,
-            model_kwargs={"device": device}
-        )
+        try:
+            self.embeddings = HuggingFaceEmbeddings(
+                model_name=embedding_model_name,
+                model_kwargs={"device": device}
+            )
+        except Exception as e:
+            print(f"警告: 加载嵌入模型失败，将使用默认模型: {str(e)}")
+            # 尝试使用更小的模型作为后备
+            try:
+                self.embeddings = HuggingFaceEmbeddings(
+                    model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+                    model_kwargs={"device": device}
+                )
+            except:
+                print("无法加载嵌入模型，将使用CPU模式")
+                self.embeddings = HuggingFaceEmbeddings(
+                    model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+                )
 
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=800,

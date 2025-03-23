@@ -46,6 +46,36 @@ class ModelInterface(ABC):
         pass
 
 
+# 一个模拟模型类，用于在所有模型都不可用时提供基本功能
+class MockModel(ModelInterface):
+    """模拟模型，用于模型连接失败时提供基本功能"""
+
+    def __init__(self):
+        self.system_prompt = "您好，我是一个简单的助手。"
+        self.temperature = 0.7
+        self.__model_type__ = "mock"
+
+    def set_system_prompt(self, prompt: str) -> None:
+        self.system_prompt = prompt
+
+    def set_temperature(self, temperature: float) -> None:
+        self.temperature = temperature
+
+    def generate_response(self, query: str, chat_history: List[Dict[str, str]] = None) -> str:
+        return f"系统通知：当前没有可用的模型服务。请检查以下问题：\n\n" \
+               f"1. 如果您想使用Ollama，请确保它已安装并运行（http://localhost:11434）\n" \
+               f"2. 如果您想使用Moonshot API，请提供有效的API密钥\n" \
+               f"3. 如果您想使用LM Studio，请确保它已运行并监听端口1234\n\n" \
+               f"您的问题是：{query}"
+
+    def get_model_info(self) -> Dict[str, Any]:
+        return {
+            "name": "模拟模型",
+            "provider": "系统",
+            "type": "模拟",
+            "status": "所有模型连接失败后的回退选项"
+        }
+
 class OllamaModel(ModelInterface):
     """Ollama 本地模型接口"""
 
@@ -472,7 +502,7 @@ class OpenAICompatibleModel(ModelInterface):
 
 def get_model(model_type: str, config_data: Optional[Dict[str, Any]] = None) -> ModelInterface:
     """
-    获取指定类型的模型实例
+    获取指定类型的模型实例，连接失败时自动降级
 
     Args:
         model_type: 模型类型标识符
@@ -480,9 +510,6 @@ def get_model(model_type: str, config_data: Optional[Dict[str, Any]] = None) -> 
 
     Returns:
         模型接口实例
-
-    Raises:
-        ValueError: 不支持的模型类型
     """
     import config as app_config
 
@@ -492,34 +519,46 @@ def get_model(model_type: str, config_data: Optional[Dict[str, Any]] = None) -> 
         else:
             raise ValueError(f"配置中不存在模型类型: {model_type}")
 
-    if model_type == "ollama":
-        return OllamaModel(
-            model_name=config_data.get("model_name", "llama3"),
-            base_url=config_data.get("base_url", "http://localhost:11434")
-        )
-    elif model_type == "moonshot":
-        return MoonshotModel(
-            api_key=config_data.get("api_key", os.environ.get("MOONSHOT_API_KEY", "")),
-            model_name=config_data.get("model_name", "moonshot-v1-8k")
-        )
-    elif model_type == "lmstudio":
-        return LMStudioModel(
-            base_url=config_data.get("base_url", "http://localhost:1234/v1"),
-            model_name=config_data.get("model_name", "本地模型")
-        )
-    elif model_type == "deepseek":
-        return OpenAICompatibleModel(
-            api_key=config_data.get("api_key", os.environ.get("DEEPSEEK_API_KEY", "")),
-            base_url=config_data.get("base_url", "https://api.deepseek.com/v1"),
-            model_name=config_data.get("model_name", "deepseek-chat"),
-            provider_name="DeepSeek"
-        )
-    elif model_type == "custom_openai":
-        return OpenAICompatibleModel(
-            api_key=config_data.get("api_key", ""),
-            base_url=config_data.get("base_url", ""),
-            model_name=config_data.get("model_name", ""),
-            provider_name=config_data.get("provider_name", "自定义API")
-        )
-    else:
-        raise ValueError(f"不支持的模型类型: {model_type}")
+    try:
+        if model_type == "ollama":
+            return OllamaModel(
+                model_name=config_data.get("model_name", "llama3"),
+                base_url=config_data.get("base_url", "http://localhost:11434")
+            )
+        elif model_type == "moonshot":
+            return MoonshotModel(
+                api_key=config_data.get("api_key", os.environ.get("MOONSHOT_API_KEY", "")),
+                model_name=config_data.get("model_name", "moonshot-v1-8k")
+            )
+        elif model_type == "lmstudio":
+            return LMStudioModel(
+                base_url=config_data.get("base_url", "http://localhost:1234/v1"),
+                model_name=config_data.get("model_name", "本地模型")
+            )
+        elif model_type == "deepseek":
+            return OpenAICompatibleModel(
+                api_key=config_data.get("api_key", os.environ.get("DEEPSEEK_API_KEY", "")),
+                base_url=config_data.get("base_url", "https://api.deepseek.com/v1"),
+                model_name=config_data.get("model_name", "deepseek-chat"),
+                provider_name="DeepSeek"
+            )
+        elif model_type == "custom_openai":
+            return OpenAICompatibleModel(
+                api_key=config_data.get("api_key", ""),
+                base_url=config_data.get("base_url", ""),
+                model_name=config_data.get("model_name", ""),
+                provider_name=config_data.get("provider_name", "自定义API")
+            )
+        else:
+            raise ValueError(f"不支持的模型类型: {model_type}")
+    except Exception as e:
+        # 如果是Ollama连接错误且有Moonshot API，则尝试降级到Moonshot
+        if model_type == "ollama" and "MOONSHOT_API_KEY" in os.environ:
+            logger.warning(f"Ollama连接失败，自动切换到Moonshot API: {str(e)}")
+            return MoonshotModel(
+                api_key=os.environ.get("MOONSHOT_API_KEY", ""),
+                model_name="moonshot-v1-8k"
+            )
+        # 如果降级失败，则返回一个模拟模型
+        logger.error(f"模型{model_type}初始化失败，使用模拟模型: {str(e)}")
+        return MockModel()

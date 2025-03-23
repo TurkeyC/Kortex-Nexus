@@ -15,6 +15,15 @@ from modules.advanced.hook import Hook
 from modules.advanced.long_memory import LongMemory
 
 
+import warnings
+import logging
+# 过滤警告
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+# 设置日志级别
+logging.basicConfig(level=logging.ERROR)
+
+
 # 第一个Streamlit命令必须是set_page_config
 def main():
     # 1. 设置页面配置 - 必须是第一个Streamlit命令
@@ -42,6 +51,39 @@ def main():
         st.sidebar.warning("未检测到GPU或GPU支持未启用，将使用CPU模式运行")
         config.ENABLE_GPU = False
         config.EMBEDDING_DEVICE = "cpu"
+
+    # 检查模型可用性并提供友好提示
+    is_local_model_available = False
+    is_api_model_available = False
+
+    try:
+        # 检查Ollama可用性
+        import requests
+        response = requests.get("http://localhost:11434/api/tags", timeout=2)
+        if response.status_code == 200:
+            is_local_model_available = True
+            st.sidebar.success("✅ Ollama服务已连接")
+    except:
+        st.sidebar.warning("⚠️ 未检测到Ollama服务")
+        # 显示安装指南链接
+        st.sidebar.markdown("""
+        [安装Ollama](https://ollama.com/download)
+        ```bash
+        # 安装后运行:
+        ollama pull llama3
+        ```
+        """)
+
+    # 检查API密钥
+    if os.environ.get("MOONSHOT_API_KEY") or \
+            hasattr(st.session_state, 'moonshot_api_key') and st.session_state.moonshot_api_key:
+        is_api_model_available = True
+        st.sidebar.success("✅ 已配置Moonshot API密钥")
+    else:
+        st.sidebar.info("ℹ️ 未配置Moonshot API密钥，需使用本地模型")
+
+    if not is_local_model_available and not is_api_model_available:
+        st.warning("⚠️ 警告：未检测到可用的模型服务。请在侧边栏配置Moonshot API密钥或启动Ollama服务。")
 
     # 初始化知识库
     if "knowledge_base" not in st.session_state:
