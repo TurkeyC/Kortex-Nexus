@@ -20,3 +20,8 @@ networkx>=3.2.1  # 用于知识图谱构建
 # 对话历史优化
 chromadb>=0.4.18  # 用于Consciousness Flow和长上下文记忆
 transformers>=4.36.0  # 用于小模型上下文总结
+#v2功能
+beautifulsoup4==4.13.3
+jieba==0.42.1
+rank_bm25==0.2.2
+soupsieve==2.6

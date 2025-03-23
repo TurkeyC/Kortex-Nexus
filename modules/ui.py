@@ -111,11 +111,12 @@ def render_sidebar(
             "deepseek": "DeepSeek (云API)"
         }
 
+        # 修改为优先选择lmstudio
         selected_model = st.selectbox(
             "选择模型",
             options=available_models,
             format_func=lambda x: model_display_names.get(x, x),
-            index=available_models.index("ollama") if "ollama" in available_models else 0
+            index=available_models.index("lmstudio") if "lmstudio" in available_models else 0
         )
         on_model_change(selected_model)
 

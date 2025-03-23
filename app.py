@@ -1,11 +1,18 @@
 import streamlit as st
 import os
 import torch
+import time
 from modules.ui import setup_page, apply_custom_styles, display_header, render_sidebar, render_chat_area, \
     display_assistant_response
 from modules.models import get_model
 from modules.retrieval import KnowledgeBase
 import config
+
+# 导入二阶段开发模块
+from modules.retrieval_engines import KeywordRetriever, HybridRetriever
+from modules.rag import RAGPipeline
+from modules.kb_manager import KnowledgeBaseManager
+from modules.conversation_manager import ConversationTree, ContextManager
 
 # 预开发功能导入（预留）
 from modules.advanced.swarms import Swarms
@@ -74,7 +81,7 @@ def main():
         ```
         """)
 
-    # 检查API密钥
+    # 检查API密钥v1
     if os.environ.get("MOONSHOT_API_KEY") or \
             hasattr(st.session_state, 'moonshot_api_key') and st.session_state.moonshot_api_key:
         is_api_model_available = True
@@ -85,11 +92,92 @@ def main():
     if not is_local_model_available and not is_api_model_available:
         st.warning("⚠️ 警告：未检测到可用的模型服务。请在侧边栏配置Moonshot API密钥或启动Ollama服务。")
 
-    # 初始化知识库
+    # 重要：先初始化模型，再初始化依赖模型的组件
+    # 如果模型尚未初始化，则初始化
+    if "model" not in st.session_state:
+        st.session_state.model = get_model(config.DEFAULT_MODEL)
+        
+    # 定义模型更改回调v1
+    def on_model_change(model_name):
+        # 检查模型是否已经更改
+        current_model_type = getattr(st.session_state.get("model", None), "__model_type__", "")
+
+        if model_name != current_model_type:
+            st.session_state.model = get_model(model_name)
+            
+    # 初始化知识库v1
     if "knowledge_base" not in st.session_state:
         st.session_state.knowledge_base = KnowledgeBase()
         # 尝试加载现有向量库
-        st.session_state.knowledge_base.load_existing_vectorstore()
+        if st.session_state.knowledge_base.load_existing_vectorstore():
+            st.success("成功加载现有知识库")
+            # 存储向量维度
+            if st.session_state.knowledge_base.vector_store:
+                st.session_state.vector_dimension = st.session_state.knowledge_base.vector_dimension
+        else:
+            st.warning("无法加载知识库，请上传文档或重建索引")
+    
+    # 知识库重建按钮 - 放在更突出的位置
+    if hasattr(st.session_state, "knowledge_base") and "vector_dimension" in st.session_state:
+        kb_col1, kb_col2 = st.columns([3, 1])
+        with kb_col1:
+            st.info(f"知识库状态: {'已加载' if st.session_state.knowledge_base.vector_store else '未加载'}")
+        with kb_col2:
+            if st.button("重新构建知识库索引", key="rebuild_index"):
+                with st.spinner("正在重新构建知识库索引..."):
+                    # 清除现有索引
+                    st.session_state.knowledge_base.vector_store = None
+                    # 重新加载知识库
+                    st.session_state.knowledge_base.load_knowledge_base()
+                st.success("知识库索引已重建")
+                # 重新加载页面
+                st.rerun()
+
+    # 初始化知识库管理器v2
+    if "kb_manager" not in st.session_state:
+        st.session_state.kb_manager = KnowledgeBaseManager(config.KNOWLEDGE_BASE_DIR)
+
+    # 初始化对话树v2
+    if "conversation_tree" not in st.session_state:
+        st.session_state.conversation_tree = ConversationTree()
+        st.session_state.conversation_tree.start_conversation(
+            "你是一个知识丰富的智能助手。请根据用户问题提供准确、有用的回答。"
+        )
+
+    # 初始化上下文管理器v2 - 现在可以安全地使用model
+    if "context_manager" not in st.session_state:
+        st.session_state.context_manager = ContextManager(
+            max_tokens=4000,
+            llm=st.session_state.model
+        )
+
+    # 初始化关键词检索器v2 - 同样依赖model
+    if "keyword_retriever" not in st.session_state and hasattr(st.session_state, "knowledge_base"):
+        # 加载文档数据
+        documents = []
+        if st.session_state.knowledge_base.vector_store:
+            for doc in st.session_state.knowledge_base.vector_store.docstore._dict.values():
+                documents.append({
+                    "content": doc.page_content,
+                    "metadata": doc.metadata
+                })
+
+            # 创建关键词检索器
+            st.session_state.keyword_retriever = KeywordRetriever()
+            st.session_state.keyword_retriever.add_documents(documents)
+
+            # 创建混合检索器
+            st.session_state.hybrid_retriever = HybridRetriever(
+                vector_retriever=st.session_state.knowledge_base,
+                keyword_retriever=st.session_state.keyword_retriever,
+                weights=config.RETRIEVAL_CONFIG["weights"]
+            )
+
+            # 创建RAG管道
+            st.session_state.rag_pipeline = RAGPipeline(
+                llm=st.session_state.model,
+                retriever=st.session_state.hybrid_retriever
+            )
 
     # 初始化预开发功能（预留）
     if "advanced_features" not in st.session_state:
@@ -103,18 +191,6 @@ def main():
 
         # 初始化选择的功能模式
         st.session_state.active_feature = "standard"  # 标准模式
-
-    # 定义模型更改回调
-    def on_model_change(model_name):
-        # 检查模型是否已经更改
-        current_model_type = getattr(st.session_state.get("model", None), "__model_type__", "")
-
-        if model_name != current_model_type:
-            st.session_state.model = get_model(model_name)
-
-    # 如果模型尚未初始化，则初始化
-    if "model" not in st.session_state:
-        st.session_state.model = get_model(config.DEFAULT_MODEL)
 
     # 定义功能模式更改回调
     def on_feature_mode_change(feature_mode):
@@ -133,7 +209,7 @@ def main():
     st.session_state.model.set_system_prompt(sidebar_config["system_prompt"])
     st.session_state.model.set_temperature(sidebar_config["temperature"])
 
-    # 定义消息发送回调
+    # 定义消息发送回调v1
     def on_send(user_input):
         with st.spinner("思考中..."):
             # 获取聊天历史
@@ -141,6 +217,41 @@ def main():
                 {"role": msg["role"], "content": msg["content"]}
                 for msg in st.session_state.messages[:-1]  # 不包括最新的用户消息
             ]
+
+            # 添加用户消息到对话树
+            st.session_state.conversation_tree.add_message({"role": "user", "content": user_input})
+
+            # 获取对话路径
+            chat_history = st.session_state.conversation_tree.get_conversation_path()
+
+            # 压缩历史对话
+            compressed_history = st.session_state.context_manager.compress_history(chat_history)
+
+            # 使用RAG管道处理查询
+            if hasattr(st.session_state, "rag_pipeline"):
+                try:
+                    rag_result = st.session_state.rag_pipeline.process(user_input, compressed_history)
+                    response = rag_result["response"]
+
+                    # 显示检索到的上下文（调试用）
+                    with st.expander("查看检索上下文", expanded=False):
+                        st.write("重写查询：", rag_result["rewritten_query"])
+                        st.write("检索结果：")
+                        for i, result in enumerate(rag_result["results"]):
+                            st.write(f"[{i+1}] 相关度: {result['score']:.4f}")
+                            st.write(f"来源: {result['metadata']['source']}")
+                            st.write(result["content"][:200] + "...")
+                            st.write("---")
+                except Exception as e:
+                    # 如果RAG管道失败，回退到基本模型回答
+                    st.error(f"RAG处理失败: {str(e)}")
+                    response = st.session_state.model.generate_response(user_input, compressed_history)
+            else:
+                # 回退到基本模型回答
+                response = st.session_state.model.generate_response(user_input, compressed_history)
+
+            # 添加助手回复到对话树
+            st.session_state.conversation_tree.add_message({"role": "assistant", "content": response})
 
             # 尝试检索相关信息
             retrieval_results = []
